@@ -1,0 +1,1 @@
+INSERT INTO developers(id,name) VALUES(?,?)

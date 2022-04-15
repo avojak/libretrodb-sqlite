@@ -1,0 +1,1 @@
+INSERT INTO manufacturers(id,name) VALUES(?,?)

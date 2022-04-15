@@ -1,0 +1,8 @@
+#!/bin/bash
+
+export PATH=$PATH:/home/avojak/git/libretro-super/retroarch/libretro-db
+
+# Cleanup from last run
+rm -f libretrodb.sqlite
+
+python3 main.py --rdb-dir=/home/avojak/git/libretro-super/retroarch/media/libretrodb/rdb
