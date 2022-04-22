@@ -1,0 +1,1 @@
+INSERT INTO platforms(id,name,manufacturer_id) VALUES(?,?,?)

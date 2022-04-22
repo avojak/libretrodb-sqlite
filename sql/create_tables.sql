@@ -10,7 +10,7 @@ CREATE TABLE games (
     genre_id INTEGER,
     description TEXT,
     display_name TEXT,
-    boxart_url TEXT,
+    -- boxart_url TEXT,
     platform_id INTEGER
 );
 CREATE TABLE roms (
@@ -20,25 +20,26 @@ CREATE TABLE roms (
 );
 CREATE TABLE developers (
     id INTEGER PRIMARY KEY,
-    name text
+    name TEXT
 );
 CREATE TABLE franchises (
     id INTEGER PRIMARY KEY,
-    name text
+    name TEXT
 );
 CREATE TABLE regions (
     id INTEGER PRIMARY KEY,
-    name text
+    name TEXT
 );
 CREATE TABLE genres (
     id INTEGER PRIMARY KEY,
-    name text
+    name TEXT
 );
 CREATE TABLE platforms (
     id INTEGER PRIMARY KEY,
-    name text
+    name TEXT,
+    manufacturer_id INTEGER
 );
 CREATE TABLE manufacturers (
     id INTEGER PRIMARY KEY,
-    name text
+    name TEXT
 );

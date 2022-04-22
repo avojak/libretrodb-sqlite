@@ -1,0 +1,1 @@
+INSERT INTO regions(id,name) VALUES(?,?)

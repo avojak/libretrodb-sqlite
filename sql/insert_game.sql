@@ -6,10 +6,10 @@ INSERT INTO games(
     franchise_id,
     release_year,
     release_month,
-    -- region_id,
+    region_id,
     genre_id,
     description,
-    display_name
+    display_name,
     -- boxart_url,
-    -- platform_id
-) VALUES(?,?,?,?,?,?,?,?,?,?)
+    platform_id
+) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
