@@ -1,3 +1,6 @@
+<img src="https://img.shields.io/badge/size-41.6%20MB-blue"></img>
+<img src="https://img.shields.io/badge/compressed%20size-13.4%20MB-blue"></img>
+
 # SQLite Libretro DB
 
 In some cases, client applications may find a SQLite database easier to consume than the Libretro `.rdb` files. This project provides
