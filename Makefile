@@ -38,7 +38,6 @@ $(SQLITE_DATABASE_FILE): $(LIBRETRO_DB_TOOL_EXE)
 		--output=$(SQLITE_DATABASE_FILE) \
 		--libretrodb-tool=$(LIBRETRO_DB_TOOL_EXE)
 
-
 # Creates a .tgz archive from the .sqlite file
 $(SQLITE_DATABASE_ARCHIVE): $(SQLITE_DATABASE_FILE)
 	tar -czf $(SQLITE_DATABASE_ARCHIVE) $(SQLITE_DATABASE_FILE)
