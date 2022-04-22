@@ -149,3 +149,7 @@ For example, to retrieve the box art for Advance Wars on the Game Boy Advance:
 ```
 http://thumbnails.libretro.com/Nintendo%20-%20Game%20Boy%20Advance/Named_Boxarts/Advance%20Wars%20%28USA%29.png
 ```
+
+## License
+
+This data is provided under the same license as the original data files: https://github.com/libretro/libretro-database/blob/master/COPYING
