@@ -11,6 +11,10 @@ values. The primary use-case is for client applications to be able to query the 
 
 ## Usage
 
+The pre-built database can be downloaded from the latest GitHub release.
+
+To build from scratch:
+
 ```bash
 $ make all
 ```
