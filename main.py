@@ -39,6 +39,9 @@ class Game:
         self.description = description
         self.platform_id = platform_id
 
+    """
+    Merge other game into self by deferring to non-null fields.
+    """
     def join(self, other):
         # Join the top-level fields
         if self.display_name is None and other.display_name is not None:
@@ -143,7 +146,7 @@ class Converter:
                 print("Skipping non-RDB file: {}".format(file))
                 continue
             self._parse_platform_file(os.path.join(self.rdb_dir, file))
-            break # TODO: Remove this
+            # break # TODO: Remove this
         
         # Open the database connection
         connection = sqlite3.connect(self.output_file)
