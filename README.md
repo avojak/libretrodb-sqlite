@@ -131,7 +131,7 @@ Output:
 
 | serial_id | release_year | release_month | display_name | developer_name | franchise_name | region_name | genre_name | rom_name | rom_md5 | platform_name | manufacturer_name |
 | --------- | ------------ | ------------- | ------------ | -------------- | -------------- | ----------- | ---------- | -------- | ------- | ------------- | ----------------- |
-| 41575245 | NULL | NULL | Advance Wars (USA) | Intelligent Systems | Advance Wars | USA | Strategy | Advance Wars (USA).gba | 27F322F5CD535297AB21BC4A41CBFC12 | Game Boy Advance | Nintendo |
+| 41575245 | 2001 | 9 | Advance Wars (USA) | Intelligent Systems | Advance Wars | USA | Strategy | Advance Wars (USA).gba | 27F322F5CD535297AB21BC4A41CBFC12 | Game Boy Advance | Nintendo |
 
 ## Artwork
 
