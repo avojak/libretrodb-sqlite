@@ -117,12 +117,12 @@ SELECT games.serial_id,
 	platforms.name as platform_name,
 	manufacturers.name as manufacturer_name
 FROM games
-	INNER JOIN developers ON games.developer_id = developers.id
-	INNER JOIN franchises ON games.franchise_id = franchises.id
-	INNER JOIN genres ON games.genre_id = genres.id
-	INNER JOIN platforms ON games.platform_id = platforms.id
-		INNER JOIN manufacturers ON platforms.manufacturer_id = manufacturers.id
-	INNER JOIN regions ON games.region_id = regions.id
+	LEFT JOIN developers ON games.developer_id = developers.id
+	LEFT JOIN franchises ON games.franchise_id = franchises.id
+	LEFT JOIN genres ON games.genre_id = genres.id
+	LEFT JOIN platforms ON games.platform_id = platforms.id
+		LEFT JOIN manufacturers ON platforms.manufacturer_id = manufacturers.id
+	LEFT JOIN regions ON games.region_id = regions.id
 	INNER JOIN roms ON games.rom_id = roms.id
 WHERE roms.md5 = "27F322F5CD535297AB21BC4A41CBFC12";
 ```
