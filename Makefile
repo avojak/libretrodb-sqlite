@@ -46,10 +46,12 @@ $(SQLITE_DATABASE_ARCHIVE): $(SQLITE_DATABASE_FILE)
 .PHONY: database
 database: $(SQLITE_DATABASE_FILE)
 	$(info $(shell du -sh $(SQLITE_DATABASE_FILE)))
+	$(info $(shell sha256sum $(SQLITE_DATABASE_FILE)))
 
 .PHONY: archive
 archive: $(SQLITE_DATABASE_ARCHIVE)
 	$(info $(shell du -sh $(SQLITE_DATABASE_ARCHIVE)))
+	$(info $(shell sha256sum $(SQLITE_DATABASE_ARCHIVE)))
 
 .PHONY: all
 all: database archive
