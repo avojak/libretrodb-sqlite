@@ -8,8 +8,8 @@ CREATE TABLE games (
     release_month INTEGER,
     region_id INTEGER,
     genre_id INTEGER,
-    description TEXT,
     display_name TEXT,
+    full_name TEXT,
     -- boxart_url TEXT,
     platform_id INTEGER
 );

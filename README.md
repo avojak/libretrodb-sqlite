@@ -1,5 +1,5 @@
-<img src="https://img.shields.io/badge/size-41.6%20MB-blue"></img>
-<img src="https://img.shields.io/badge/compressed%20size-13.4%20MB-blue"></img>
+<img src="https://img.shields.io/badge/size-37%20MB-blue"></img>
+<img src="https://img.shields.io/badge/compressed%20size-13%20MB-blue"></img>
 
 # SQLite Libretro DB
 
@@ -44,8 +44,8 @@ build/libretrodb.sqlite.tgz
 | release_month | INTEGER |
 | region_id | INTEGER |
 | genre_id | INTEGER |
-| description | TEXT |
 | display_name | TEXT |
+| full_name | TEXT |
 | boxart_url | TEXT |
 | platform_id | INTEGER |
 
@@ -131,7 +131,7 @@ Output:
 
 | serial_id | release_year | release_month | display_name | developer_name | franchise_name | region_name | genre_name | rom_name | rom_md5 | platform_name | manufacturer_name |
 | --------- | ------------ | ------------- | ------------ | -------------- | -------------- | ----------- | ---------- | -------- | ------- | ------------- | ----------------- |
-| 41575245 | 2001 | 9 | Advance Wars (USA) | Intelligent Systems | Advance Wars | USA | Strategy | Advance Wars (USA).gba | 27F322F5CD535297AB21BC4A41CBFC12 | Game Boy Advance | Nintendo |
+| 41575245 | 2001 | 9 | Advance Wars | Intelligent Systems | Advance Wars | USA | Strategy | Advance Wars (USA).gba | 27F322F5CD535297AB21BC4A41CBFC12 | Game Boy Advance | Nintendo |
 
 ## Artwork
 

@@ -1,14 +1,14 @@
-SHELL := /bin/bash
+SHELL      := /bin/bash
+PYTHON_EXE := python3
 
-PYTHON_EXE             := python3
-LIBRETRO_SUPER_GIT_URL := https://github.com/libretro/libretro-super.git
+LIBRETRO_DATABASE_GIT_URL := https://github.com/libretro/libretro-database.git
+LIBRETRO_DATABASE_TAG     := v1.10.3
 
-BUILD_DIR            := build
-LIBRETRO_SUPER_DIR   := $(BUILD_DIR)/libretro-super
-RETROARCH_DIR        := $(LIBRETRO_SUPER_DIR)/retroarch
-RDB_DIR              := $(RETROARCH_DIR)/media/libretrodb/rdb
-LIBRETRO_DB_DIR      := $(RETROARCH_DIR)/libretro-db
-LIBRETRO_DB_TOOL_EXE := $(LIBRETRO_DB_DIR)/libretrodb_tool
+BUILD_DIR             := build
+LIBRETRO_DATABASE_DIR := $(BUILD_DIR)/libretro-database
+LIBRETRO_RDB_DIR      := $(LIBRETRO_DATABASE_DIR)/rdb
+LIBRETRO_SUPER_DIR    := $(LIBRETRO_DATABASE_DIR)/libretro-super
+LIBRETRO_DB_TOOL_EXE  := $(LIBRETRO_SUPER_DIR)/retroarch/libretro-db/libretrodb_tool
 
 SQLITE_DATABASE_FILE    := $(BUILD_DIR)/libretrodb.sqlite
 SQLITE_DATABASE_ARCHIVE := $(SQLITE_DATABASE_FILE).tgz
@@ -17,24 +17,25 @@ SQLITE_DATABASE_ARCHIVE := $(SQLITE_DATABASE_FILE).tgz
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-# Retrieve the libretro-super repository
-$(LIBRETRO_SUPER_DIR): | $(BUILD_DIR)
-	git clone $(LIBRETRO_SUPER_GIT_URL) $(LIBRETRO_SUPER_DIR)
+$(LIBRETRO_RDB_DIR): $(LIBRETRO_DATABASE_DIR) $(LIBRETRO_SUPER_DIR)
 
-# Retrieve the Retroarch data and build the database
-$(RETROARCH_DIR): $(LIBRETRO_SUPER_DIR)
-	cd $(LIBRETRO_SUPER_DIR) && \
-		./libretro-fetch.sh retroarch && \
-		./libretro-build-database.sh
+# Retrieve the libretro-database repository
+$(LIBRETRO_DATABASE_DIR): | $(BUILD_DIR)
+	git clone $(LIBRETRO_DATABASE_GIT_URL) $(LIBRETRO_DATABASE_DIR)
+	git -C $(LIBRETRO_DATABASE_DIR) checkout tags/$(LIBRETRO_DATABASE_TAG)
 
-# Build the libretrodb_tool
-$(LIBRETRO_DB_TOOL_EXE): $(RETROARCH_DIR)
-	$(MAKE) -C $(LIBRETRO_DB_DIR) libretrodb_tool
+# Build the libretro-database repository
+$(LIBRETRO_SUPER_DIR): | $(LIBRETRO_DATABASE_DIR)
+	$(MAKE) -C $(LIBRETRO_DATABASE_DIR) build
+
+# Ensure that the libretrodb_tool is built
+$(LIBRETRO_DB_TOOL_EXE): | $(LIBRETRO_SUPER_DIR)
+	$(MAKE) -C $(LIBRETRO_DATABASE_DIR) build
 
 # Generates the .sqlite database file
-$(SQLITE_DATABASE_FILE): $(LIBRETRO_DB_TOOL_EXE)
+$(SQLITE_DATABASE_FILE): $(LIBRETRO_RDB_DIR) $(LIBRETRO_DB_TOOL_EXE)
 	$(PYTHON_EXE) main.py \
-		--rdb-dir=$(RDB_DIR) \
+		--rdb-dir=$(LIBRETRO_RDB_DIR) \
 		--output=$(SQLITE_DATABASE_FILE) \
 		--libretrodb-tool=$(LIBRETRO_DB_TOOL_EXE)
 
@@ -44,9 +45,11 @@ $(SQLITE_DATABASE_ARCHIVE): $(SQLITE_DATABASE_FILE)
 
 .PHONY: database
 database: $(SQLITE_DATABASE_FILE)
+	$(info $(shell du -sh $(SQLITE_DATABASE_FILE)))
 
 .PHONY: archive
 archive: $(SQLITE_DATABASE_ARCHIVE)
+	$(info $(shell du -sh $(SQLITE_DATABASE_ARCHIVE)))
 
 .PHONY: all
 all: database archive

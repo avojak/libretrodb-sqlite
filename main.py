@@ -9,6 +9,22 @@ import subprocess
 from pathlib import Path
 from subprocess import PIPE
 
+class Logger:
+
+    def __init__(self):
+        self.CRED = '\033[91m'
+        self.CGREEN = '\033[92m'
+        self.CEND = '\033[0m'
+
+    def error(self, msg):
+        print("{cred}{msg}{cend}".format(cred=self.CRED, msg=msg, cend=self.CEND))
+
+    def info(self, msg):
+        print(msg)
+
+    def success(self, msg):
+        print("{cgreen}{msg}{cend}".format(cgreen=self.CGREEN, msg=msg, cend=self.CEND))
+
 class Platform:
 
     def __init__(self, name, manufacturer_id):
@@ -25,9 +41,10 @@ class ROM:
 
 class Game:
 
-    def __init__(self, display_name, serial, rom, developer_id, franchise_id, release_year, release_month, region_id, genre_id, description, platform_id):
+    def __init__(self, display_name, full_name, serial, rom, developer_id, franchise_id, release_year, release_month, region_id, genre_id, platform_id):
         self.id = None
         self.display_name = display_name
+        self.full_name = full_name
         self.serial = serial
         self.rom = rom
         self.developer_id = developer_id
@@ -36,7 +53,6 @@ class Game:
         self.release_month = release_month
         self.region_id = region_id
         self.genre_id = genre_id
-        self.description = description
         self.platform_id = platform_id
 
     """
@@ -46,6 +62,8 @@ class Game:
         # Join the top-level fields
         if self.display_name is None and other.display_name is not None:
             self.display_name = other.display_name
+        if self.full_name is None and other.full_name is not None:
+            self.full_name = other.full_name
         if self.serial is None and other.serial is not None:
             self.serial = other.serial
         if self.developer_id is None and other.developer_id is not None:
@@ -60,8 +78,6 @@ class Game:
             self.region_id = other.region_id
         if self.genre_id is None and other.genre_id is not None:
             self.genre_id = other.genre_id
-        if self.description is None and other.description is not None:
-            self.description = other.description
         if self.platform_id is None and other.platform_id is not None:
             self.platform_id = other.platform_id
         # Join the ROM
@@ -75,6 +91,7 @@ class Game:
 class Converter:
 
     def __init__(self, rdb_dir, output_file, libretrodb_tool):
+        self.logger = Logger()
         self.rdb_dir = self._validate_rdb_dir(rdb_dir)
         self.output_file = self._validate_output_file(output_file)
         self.libretrodb_tool = self._validate_libretrodb_tool(libretrodb_tool)
@@ -92,7 +109,7 @@ class Converter:
     """
     def _validate_rdb_dir(self, rdb_dir):
         if not os.path.isdir(rdb_dir):
-            print("{} is not a directory".format(rdb_dir))
+            self.logger.error("{} is not a directory".format(rdb_dir))
             exit(1)
         return rdb_dir
 
@@ -101,7 +118,7 @@ class Converter:
     """
     def _validate_output_file(self, output_file):
         if os.path.isfile(output_file):
-            print("{} already exists".format(output_file))
+            self.logger.error("{} already exists".format(output_file))
             exit(1)
         return output_file
 
@@ -123,7 +140,7 @@ class Converter:
     """
     def _validate_libretrodb_tool(self, libretrodb_tool):
         if not os.path.isfile(libretrodb_tool):
-            print("{} not found".format(libretrodb_tool))
+            self.logger.error("{} not found".format(libretrodb_tool))
             exit(1)
         return libretrodb_tool
     
@@ -143,7 +160,7 @@ class Converter:
         # Iterate over the .rdb files in the input directory and parse all data
         for file in [f for f in os.listdir(self.rdb_dir) if os.path.isfile(os.path.join(self.rdb_dir, f))]:
             if not file.endswith('.rdb'):
-                print("Skipping non-RDB file: {}".format(file))
+                self.logger.info("Skipping non-RDB file: {}".format(file))
                 continue
             self._parse_platform_file(os.path.join(self.rdb_dir, file))
             # break # TODO: Remove this
@@ -174,7 +191,7 @@ class Converter:
     Parses a single platform .rdb file.
     """
     def _parse_platform_file(self, rdb_file):
-        print("  > Parsing: {}".format(rdb_file))
+        self.logger.info("Parsing {}".format(rdb_file))
 
         # Try to parse out the manufacturer and platfrom from the .rdb filename
         system_fullname = Path(rdb_file).stem
@@ -209,8 +226,8 @@ class Converter:
         try:
             json_obj = json.loads(json_str)
         except json.decoder.JSONDecodeError as e:
-            print("Error while parsing JSON: {}".format(e.msg))
-            print("Original JSON string: {}".format(json_str))
+            self.logger.error("Error while parsing JSON: {}".format(str(e)))
+            self.logger.error("Original JSON string: {}".format(json_str))
             return
 
         # Extract the fields from the JSON
@@ -224,8 +241,14 @@ class Converter:
         rom_name = self._get_json_value(json_obj, 'rom_name')
         region = self._get_json_value(json_obj, 'region')
         genre = self._get_json_value(json_obj, 'genre')
-        description = self._get_json_value(json_obj, 'description')
-        display_name = self._get_json_value(json_obj, 'name')
+        # description = self._get_json_value(json_obj, 'description') # This field in the dataset doesn't currently provide any added value
+        full_name = self._get_json_value(json_obj, 'name')
+        
+        # Build the display name from the full name, but ignore all the trailing parenthesis-wrapped meta-tags
+        if full_name is None:
+            display_name = None
+        else:
+            display_name = full_name.split("(")[0].strip() if "(" in full_name else full_name
 
         # Save potentially common references to developers, franchises, regions and genres, and assign an ID
         if developer is not None and developer not in self.developers:
@@ -244,7 +267,7 @@ class Converter:
 
         # Build the ROM and Game objects. Note that ROMs and games should be 1:1.
         rom = ROM(rom_name, md5)
-        game = Game(display_name, serial, rom, developer_id, franchise_id, release_year, release_month, region_id, genre_id, description, platform_id)
+        game = Game(display_name, full_name, serial, rom, developer_id, franchise_id, release_year, release_month, region_id, genre_id, platform_id)
         if md5 in self.games:
             self.games[md5].join(game)
         else:
@@ -257,60 +280,59 @@ class Converter:
     Insert the manufacturers into the database.
     """
     def _insert_manufacturers(self, cursor):
-        print("  > Inserting {} manufacturers into database…".format(len(self.manufacturers)))
         for key,value in self.manufacturers.items():
             (id, name) = (value, key)
             cursor.execute(self._load_sql("./sql/insert_manufacturer.sql"), (id, name))
+        self.logger.success("Inserted {} manufacturers into database".format(len(self.manufacturers)))
     
     """
     Insert the platforms into the database.
     """
     def _insert_platforms(self, cursor):
-        print("  > Inserting {} platforms into database…".format(len(self.platforms)))
         for key,value in self.platforms.items():
             cursor.execute(self._load_sql("./sql/insert_platform.sql"), (value.id, value.name, value.manufacturer_id))
+        self.logger.success("Inserted {} platforms into database".format(len(self.platforms)))
 
     """
     Insert the developers into the database.
     """
     def _insert_developers(self, cursor):
-        print("  > Inserting {} developers into database…".format(len(self.developers)))
         for key,value in self.developers.items():
             (id, name) = (value, key)
             cursor.execute(self._load_sql("./sql/insert_developer.sql"), (id, name))
+        self.logger.success("Inserted {} developers into database".format(len(self.developers)))
 
     """
     Insert the franchises into the database.
     """
     def _insert_franchises(self, cursor):
-        print("  > Inserting {} franchises into database…".format(len(self.franchises)))
         for key,value in self.franchises.items():
             (id, name) = (value, key)
             cursor.execute(self._load_sql("./sql/insert_franchise.sql"), (id, name))
+        self.logger.success("Inserted {} franchises into database".format(len(self.franchises)))
 
     """
     Insert the regions into the database.
     """
     def _insert_regions(self, cursor):
-        print("  > Inserting {} regions into database…".format(len(self.regions)))
         for key,value in self.regions.items():
             (id, name) = (value, key)
             cursor.execute(self._load_sql("./sql/insert_region.sql"), (id, name))
+        self.logger.success("Inserted {} regions into database".format(len(self.regions)))
 
     """
     Insert the genres into the database.
     """
     def _insert_genres(self, cursor):
-        print("  > Inserting {} genres into database…".format(len(self.genres)))
         for key,value in self.genres.items():
             (id, name) = (value, key)
             cursor.execute(self._load_sql("./sql/insert_genre.sql"), (id, name))
+        self.logger.success("Inserted {} genres into database".format(len(self.genres)))
 
     """
     Insert the ROMs and games into the database.
     """
     def _insert_games(self, cursor):
-        print("  > Inserting {} games into database…".format(len(self.games)))
         for key,value in self.games.items():
             game = value
             cursor.execute(self._load_sql("./sql/insert_rom.sql"), (game.rom.id, game.rom.name, game.rom.md5))
@@ -324,9 +346,10 @@ class Converter:
                 game.release_month,
                 game.region_id,
                 game.genre_id,
-                game.description,
                 game.display_name,
+                game.full_name,
                 game.platform_id))
+        self.logger.success("Inserted {} games into database".format(len(self.games)))
 
     def _get_json_value(self, json_obj, key):
         return json_obj[key] if key in json_obj else None

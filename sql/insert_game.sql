@@ -8,8 +8,8 @@ INSERT INTO games(
     release_month,
     region_id,
     genre_id,
-    description,
     display_name,
+    full_name,
     -- boxart_url,
     platform_id
 ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
