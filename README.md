@@ -1,5 +1,5 @@
-<img src="https://img.shields.io/badge/size-37%20MB-blue"></img>
-<img src="https://img.shields.io/badge/compressed%20size-13%20MB-blue"></img>
+<img src="https://img.shields.io/badge/size-35%20MB-blue"></img>
+<img src="https://img.shields.io/badge/compressed%20size-14%20MB-blue"></img>
 
 # SQLite Libretro DB
 
