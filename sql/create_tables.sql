@@ -1,7 +1,6 @@
 CREATE TABLE games (
     id INTEGER PRIMARY KEY,
     serial_id TEXT,
-    -- rom_id INTEGER,
     developer_id INTEGER,
     publisher_id INTEGER,
     rating_id INTEGER,

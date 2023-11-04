@@ -1,7 +1,6 @@
 INSERT INTO games(
     id,
     serial_id,
-    -- rom_id,
     developer_id,
     publisher_id,
     rating_id,
