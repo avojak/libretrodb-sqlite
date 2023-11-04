@@ -10,7 +10,8 @@ the same content* from the Libretro RetroArch database in a single SQLite databa
 
 ***Important note:*** The conversion tool here also does some basic deconfliction when there are multiple records for the same ROM MD5 checksum.
 The underlying assumption is that if two ROMs have the same checksum, they're the same, and the metadata should be merged in favor of non-null
-values. The primary use-case is for client applications to be able to query the database by MD5 checksum of a ROM file, so keep in mind that this mindset informed the database schema and how the utility decides which data is duplicated.
+values. The primary use-case is for client applications to be able to query the database by MD5 checksum of a ROM file, so keep in mind that 
+this mindset informed the database schema and how the utility decides which data is duplicated.
 
 ## Usage
 
@@ -37,8 +38,10 @@ build/libretrodb.sqlite.tgz
 | ------ | --------- |
 | id | INTEGER PRIMARY KEY |
 | serial_id | TEXT |
-| rom_id | INTEGER |
 | developer_id | INTEGER |
+| publisher_id | INTEGER |
+| rating_id | INTEGER |
+| users | INTEGER |
 | franchise_id | INTEGER |
 | release_year | INTEGER |
 | release_month | INTEGER |
@@ -54,10 +57,25 @@ build/libretrodb.sqlite.tgz
 | Column | Data Type |
 | ------ | --------- |
 | id | INTEGER PRIMARY KEY |
+| serial_id | INTEGER |
 | name | TEXT |
 | md5 | TEXT |
 
 ### `developers`
+
+| Column | Data Type |
+| ------ | --------- |
+| id | INTEGER PRIMARY KEY |
+| name | TEXT |
+
+### `publishers`
+
+| Column | Data Type |
+| ------ | --------- |
+| id | INTEGER PRIMARY KEY |
+| name | TEXT |
+
+### `ratings`
 
 | Column | Data Type |
 | ------ | --------- |
