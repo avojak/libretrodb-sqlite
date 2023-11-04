@@ -1,5 +1,5 @@
-<img src="https://img.shields.io/badge/size-37%20MB-blue"></img>
-<img src="https://img.shields.io/badge/compressed%20size-13%20MB-blue"></img>
+<img src="https://img.shields.io/badge/size-35%20MB-blue"></img>
+<img src="https://img.shields.io/badge/compressed%20size-14%20MB-blue"></img>
 
 # SQLite Libretro DB
 
@@ -10,7 +10,8 @@ the same content* from the Libretro RetroArch database in a single SQLite databa
 
 ***Important note:*** The conversion tool here also does some basic deconfliction when there are multiple records for the same ROM MD5 checksum.
 The underlying assumption is that if two ROMs have the same checksum, they're the same, and the metadata should be merged in favor of non-null
-values. The primary use-case is for client applications to be able to query the database by MD5 checksum of a ROM file, so keep in mind that this mindset informed the database schema and how the utility decides which data is duplicated.
+values. The primary use-case is for client applications to be able to query the database by MD5 checksum of a ROM file, so keep in mind that 
+this mindset informed the database schema and how the utility decides which data is duplicated.
 
 ## Usage
 
@@ -37,8 +38,10 @@ build/libretrodb.sqlite.tgz
 | ------ | --------- |
 | id | INTEGER PRIMARY KEY |
 | serial_id | TEXT |
-| rom_id | INTEGER |
 | developer_id | INTEGER |
+| publisher_id | INTEGER |
+| rating_id | INTEGER |
+| users | INTEGER |
 | franchise_id | INTEGER |
 | release_year | INTEGER |
 | release_month | INTEGER |
@@ -54,10 +57,25 @@ build/libretrodb.sqlite.tgz
 | Column | Data Type |
 | ------ | --------- |
 | id | INTEGER PRIMARY KEY |
+| serial_id | INTEGER |
 | name | TEXT |
 | md5 | TEXT |
 
 ### `developers`
+
+| Column | Data Type |
+| ------ | --------- |
+| id | INTEGER PRIMARY KEY |
+| name | TEXT |
+
+### `publishers`
+
+| Column | Data Type |
+| ------ | --------- |
+| id | INTEGER PRIMARY KEY |
+| name | TEXT |
+
+### `ratings`
 
 | Column | Data Type |
 | ------ | --------- |
@@ -108,7 +126,10 @@ SELECT games.serial_id,
 	games.release_year,
 	games.release_month,
 	games.display_name,
+	games.users,
 	developers.name as developer_name,
+	publishers.name as publisher_name,
+	ratings.name as rating_name,	
 	franchises.name as franchise_name,
 	regions.name as region_name,
 	genres.name as genre_name,
@@ -119,11 +140,13 @@ SELECT games.serial_id,
 FROM games
 	LEFT JOIN developers ON games.developer_id = developers.id
 	LEFT JOIN franchises ON games.franchise_id = franchises.id
+	LEFT JOIN publishers ON games.publisher_id = publishers.id
+	LEFT JOIN ratings ON games.rating_id = ratings.id
 	LEFT JOIN genres ON games.genre_id = genres.id
 	LEFT JOIN platforms ON games.platform_id = platforms.id
 		LEFT JOIN manufacturers ON platforms.manufacturer_id = manufacturers.id
 	LEFT JOIN regions ON games.region_id = regions.id
-	INNER JOIN roms ON games.rom_id = roms.id
+	INNER JOIN roms ON games.serial_id = roms.serial_id
 WHERE roms.md5 = "27F322F5CD535297AB21BC4A41CBFC12";
 ```
 
