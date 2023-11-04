@@ -393,7 +393,6 @@ class Converter:
     Insert the ROMs into the database.
     """
     def _insert_roms(self, cursor):
-        # cursor.execute(self._load_sql("./sql/insert_rom.sql"), (game.rom.id, game.rom.name, game.rom.md5))
         for key,value in self.roms.items():
             rom = value
             cursor.execute(self._load_sql("./sql/insert_rom.sql"), (rom.id, rom.serial, rom.name, rom.md5))
