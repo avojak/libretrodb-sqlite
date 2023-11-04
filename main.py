@@ -47,7 +47,6 @@ class Game:
         self.display_name = display_name
         self.full_name = full_name
         self.serial = serial
-        # self.rom = rom
         self.developer_id = developer_id
         self.publisher_id = publisher_id
         self.rating_id = rating_id
@@ -63,7 +62,6 @@ class Game:
     Merge other game into self by deferring to non-null fields.
     """
     def join(self, other):
-        # Join the top-level fields
         if self.display_name is None and other.display_name is not None:
             self.display_name = other.display_name
         if self.full_name is None and other.full_name is not None:
@@ -90,13 +88,6 @@ class Game:
             self.genre_id = other.genre_id
         if self.platform_id is None and other.platform_id is not None:
             self.platform_id = other.platform_id
-        # Join the ROM
-        # if self.rom is None and other.rom is not None:
-        #     self.rom = other.rom
-        # if self.rom.name is None and other.rom.name is not None:
-        #     self.rom.name = other.rom.name
-        # if self.rom.md5 is None and other.rom.md5 is not None:
-        #     self.rom.md5 = other.rom.md5
 
 class Converter:
 
@@ -303,8 +294,6 @@ class Converter:
             id = len(self.games) + 1
             game.id = id
             self.games[serial] = game
-            # self.games[serial].id = id
-            # self.games[md5].rom.id = id
     
     """
     Insert the manufacturers into the database.
