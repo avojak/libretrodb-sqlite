@@ -372,11 +372,9 @@ class Converter:
     def _insert_games(self, cursor):
         for key,value in self.games.items():
             game = value
-            # cursor.execute(self._load_sql("./sql/insert_rom.sql"), (game.rom.id, game.rom.name, game.rom.md5))
             cursor.execute(self._load_sql("./sql/insert_game.sql"), (
                 game.id, 
                 game.serial,
-                # game.rom.id,
                 game.developer_id,
                 game.publisher_id,
                 game.rating_id,
