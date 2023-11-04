@@ -108,7 +108,10 @@ SELECT games.serial_id,
 	games.release_year,
 	games.release_month,
 	games.display_name,
+	games.users,
 	developers.name as developer_name,
+	publishers.name as publisher_name,
+	ratings.name as rating_name,	
 	franchises.name as franchise_name,
 	regions.name as region_name,
 	genres.name as genre_name,
@@ -119,11 +122,13 @@ SELECT games.serial_id,
 FROM games
 	LEFT JOIN developers ON games.developer_id = developers.id
 	LEFT JOIN franchises ON games.franchise_id = franchises.id
+	LEFT JOIN publishers ON games.publisher_id = publishers.id
+	LEFT JOIN ratings ON games.rating_id = ratings.id
 	LEFT JOIN genres ON games.genre_id = genres.id
 	LEFT JOIN platforms ON games.platform_id = platforms.id
 		LEFT JOIN manufacturers ON platforms.manufacturer_id = manufacturers.id
 	LEFT JOIN regions ON games.region_id = regions.id
-	INNER JOIN roms ON games.rom_id = roms.id
+	INNER JOIN roms ON games.serial_id = roms.serial_id
 WHERE roms.md5 = "27F322F5CD535297AB21BC4A41CBFC12";
 ```
 

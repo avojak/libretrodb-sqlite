@@ -1,1 +1,1 @@
-INSERT INTO roms(id,name,md5) VALUES(?,?,?)
+INSERT INTO roms(id,serial_id,name,md5) VALUES(?,?,?,?)

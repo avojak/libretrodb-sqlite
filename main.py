@@ -34,20 +34,24 @@ class Platform:
 
 class ROM:
 
-    def __init__(self, name, md5):
+    def __init__(self, serial, name, md5):
         self.id = None
+        self.serial = serial
         self.name = name
         self.md5 = md5
 
 class Game:
 
-    def __init__(self, display_name, full_name, serial, rom, developer_id, franchise_id, release_year, release_month, region_id, genre_id, platform_id):
+    def __init__(self, display_name, full_name, serial, developer_id, publisher_id, rating_id, users, franchise_id, release_year, release_month, region_id, genre_id, platform_id):
         self.id = None
         self.display_name = display_name
         self.full_name = full_name
         self.serial = serial
-        self.rom = rom
+        # self.rom = rom
         self.developer_id = developer_id
+        self.publisher_id = publisher_id
+        self.rating_id = rating_id
+        self.users = users
         self.franchise_id = franchise_id
         self.release_year = release_year
         self.release_month = release_month
@@ -68,6 +72,12 @@ class Game:
             self.serial = other.serial
         if self.developer_id is None and other.developer_id is not None:
             self.developer_id = other.developer_id
+        if self.publisher_id is None and other.publisher_id is not None:
+            self.publisher_id = other.publisher_id
+        if self.rating_id is None and other.rating_id is not None:
+            self.rating_id = other.rating_id
+        if self.users is None and other.users is not None:
+            self.users = other.users
         if self.franchise_id is None and other.franchise_id is not None:
             self.franchise_id = other.franchise_id
         if self.release_year is None and other.release_year is not None:
@@ -81,12 +91,12 @@ class Game:
         if self.platform_id is None and other.platform_id is not None:
             self.platform_id = other.platform_id
         # Join the ROM
-        if self.rom is None and other.rom is not None:
-            self.rom = other.rom
-        if self.rom.name is None and other.rom.name is not None:
-            self.rom.name = other.rom.name
-        if self.rom.md5 is None and other.rom.md5 is not None:
-            self.rom.md5 = other.rom.md5
+        # if self.rom is None and other.rom is not None:
+        #     self.rom = other.rom
+        # if self.rom.name is None and other.rom.name is not None:
+        #     self.rom.name = other.rom.name
+        # if self.rom.md5 is None and other.rom.md5 is not None:
+        #     self.rom.md5 = other.rom.md5
 
 class Converter:
 
@@ -97,12 +107,15 @@ class Converter:
         self.libretrodb_tool = self._validate_libretrodb_tool(libretrodb_tool)
         # Create storage for parsed data prior to insertion in the database
         self.developers = dict()
+        self.publishers = dict()
+        self.ratings = dict()
         self.franchises = dict()
         self.regions = dict()
         self.genres = dict()
         self.platforms = dict()
         self.manufacturers = dict()
         self.games = dict()
+        self.roms = dict()
 
     """
     Ensure that the provided directory of .rdb files exists.
@@ -174,12 +187,15 @@ class Converter:
 
         # Insert data into the database
         self._insert_developers(cursor)
+        self._insert_publishers(cursor)
+        self._insert_ratings(cursor)
         self._insert_franchises(cursor)
         self._insert_genres(cursor)
         self._insert_manufacturers(cursor)
         self._insert_platforms(cursor)
         self._insert_regions(cursor)
         self._insert_games(cursor)
+        self._insert_roms(cursor)
 
         # Commit changes to the database
         connection.commit()
@@ -234,6 +250,9 @@ class Converter:
         serial = self._get_json_value(json_obj, 'serial')
         md5 = self._get_json_value(json_obj, 'md5')
         developer = self._get_json_value(json_obj, 'developer')
+        publisher = self._get_json_value(json_obj, 'publisher')
+        rating = self._get_json_value(json_obj, 'esrb_rating')
+        users = self._get_json_value(json_obj, 'users')
         franchise = self._get_json_value(json_obj, 'franchise')
         release_year = self._get_json_value(json_obj, 'releaseyear')
         release_month = self._get_json_value(json_obj, 'releasemonth')
@@ -253,6 +272,10 @@ class Converter:
         # Save potentially common references to developers, franchises, regions and genres, and assign an ID
         if developer is not None and developer not in self.developers:
             self.developers[developer] = len(self.developers) + 1
+        if publisher is not None and publisher not in self.publishers:
+            self.publishers[publisher] = len(self.publishers) + 1
+        if rating is not None and rating not in self.ratings:
+            self.ratings[rating] = len(self.ratings) + 1
         if franchise is not None and franchise not in self.franchises:
             self.franchises[franchise] = len(self.franchises) + 1
         if region is not None and region not in self.regions:
@@ -261,20 +284,27 @@ class Converter:
             self.genres[genre] = len(self.genres) + 1
 
         developer_id = self.developers[developer] if developer is not None else None
+        publisher_id = self.publishers[publisher] if publisher is not None else None
+        rating_id = self.ratings[rating] if rating is not None else None
         franchise_id = self.franchises[franchise] if franchise is not None else None
         region_id = self.regions[region] if region is not None else None
         genre_id = self.genres[genre] if genre is not None else None
 
         # Build the ROM and Game objects. Note that ROMs and games should be 1:1.
-        rom = ROM(rom_name, md5)
-        game = Game(display_name, full_name, serial, rom, developer_id, franchise_id, release_year, release_month, region_id, genre_id, platform_id)
-        if md5 in self.games:
-            self.games[md5].join(game)
+        rom = ROM(serial, rom_name, md5)
+        rom_id = len(self.roms) + 1
+        rom.id = rom_id
+        self.roms[rom_id] = rom
+
+        game = Game(display_name, full_name, serial, developer_id, publisher_id, rating_id, users, franchise_id, release_year, release_month, region_id, genre_id, platform_id)
+        if serial in self.games:
+            self.games[serial].join(game)
         else:
             id = len(self.games) + 1
-            self.games[md5] = game
-            self.games[md5].id = id
-            self.games[md5].rom.id = id
+            game.id = id
+            self.games[serial] = game
+            # self.games[serial].id = id
+            # self.games[md5].rom.id = id
     
     """
     Insert the manufacturers into the database.
@@ -301,6 +331,24 @@ class Converter:
             (id, name) = (value, key)
             cursor.execute(self._load_sql("./sql/insert_developer.sql"), (id, name))
         self.logger.success("Inserted {} developers into database".format(len(self.developers)))
+
+    """
+    Insert the publishers into the database.
+    """
+    def _insert_publishers(self, cursor):
+        for key,value in self.publishers.items():
+            (id, name) = (value, key)
+            cursor.execute(self._load_sql("./sql/insert_publisher.sql"), (id, name))
+        self.logger.success("Inserted {} publishers into database".format(len(self.publishers)))
+    
+    """
+    Insert the ratings into the database.
+    """
+    def _insert_ratings(self, cursor):
+        for key,value in self.ratings.items():
+            (id, name) = (value, key)
+            cursor.execute(self._load_sql("./sql/insert_rating.sql"), (id, name))
+        self.logger.success("Inserted {} ratings into database".format(len(self.ratings)))
 
     """
     Insert the franchises into the database.
@@ -330,17 +378,20 @@ class Converter:
         self.logger.success("Inserted {} genres into database".format(len(self.genres)))
 
     """
-    Insert the ROMs and games into the database.
+    Insert the games into the database.
     """
     def _insert_games(self, cursor):
         for key,value in self.games.items():
             game = value
-            cursor.execute(self._load_sql("./sql/insert_rom.sql"), (game.rom.id, game.rom.name, game.rom.md5))
+            # cursor.execute(self._load_sql("./sql/insert_rom.sql"), (game.rom.id, game.rom.name, game.rom.md5))
             cursor.execute(self._load_sql("./sql/insert_game.sql"), (
                 game.id, 
                 game.serial,
-                game.rom.id, 
+                # game.rom.id,
                 game.developer_id,
+                game.publisher_id,
+                game.rating_id,
+                game.users,
                 game.franchise_id,
                 game.release_year,
                 game.release_month,
@@ -350,6 +401,16 @@ class Converter:
                 game.full_name,
                 game.platform_id))
         self.logger.success("Inserted {} games into database".format(len(self.games)))
+
+    """
+    Insert the ROMs into the database.
+    """
+    def _insert_roms(self, cursor):
+        # cursor.execute(self._load_sql("./sql/insert_rom.sql"), (game.rom.id, game.rom.name, game.rom.md5))
+        for key,value in self.roms.items():
+            rom = value
+            cursor.execute(self._load_sql("./sql/insert_rom.sql"), (rom.id, rom.serial, rom.name, rom.md5))
+        self.logger.success("Inserted {} ROMs into database".format(len(self.roms)))
 
     def _get_json_value(self, json_obj, key):
         return json_obj[key] if key in json_obj else None

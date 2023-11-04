@@ -1,8 +1,11 @@
 CREATE TABLE games (
     id INTEGER PRIMARY KEY,
     serial_id TEXT,
-    rom_id INTEGER,
+    -- rom_id INTEGER,
     developer_id INTEGER,
+    publisher_id INTEGER,
+    rating_id INTEGER,
+    users INTEGER,
     franchise_id INTEGER,
     release_year INTEGER,
     release_month INTEGER,
@@ -15,10 +18,19 @@ CREATE TABLE games (
 );
 CREATE TABLE roms (
     id INTEGER PRIMARY KEY,
+    serial_id TEXT,
     name TEXT,
     md5 TEXT
 );
 CREATE TABLE developers (
+    id INTEGER PRIMARY KEY,
+    name TEXT
+);
+CREATE TABLE publishers (
+    id INTEGER PRIMARY KEY,
+    name TEXT
+);
+CREATE TABLE ratings (
     id INTEGER PRIMARY KEY,
     name TEXT
 );
