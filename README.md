@@ -57,7 +57,7 @@ build/libretrodb.sqlite.tgz
 | Column | Data Type |
 | ------ | --------- |
 | id | INTEGER PRIMARY KEY |
-| serial_id | INTEGER |
+| serial_id | TEXT |
 | name | TEXT |
 | md5 | TEXT |
 
